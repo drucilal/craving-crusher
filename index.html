@@ -5,941 +5,770 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="theme-color" content="#050505" />
   <title>Craving Crusher</title>
   <link rel="manifest" href="manifest.json" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      background: #0a0a0a;
-      color: #e2e8f0;
-      font-family: -apple-system, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh;
-      min-height: -webkit-fill-available;
-      overflow-x: hidden;
+    :root {
+      --green: #00ff87;
+      --green-dim: rgba(0,255,135,0.12);
+      --green-glow: rgba(0,255,135,0.3);
+      --red: #ff4757;
+      --gold: #ffd32a;
+      --blue: #18dcff;
+      --purple: #c56cf0;
+      --bg: #050505;
+      --card: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.06);
+      --text: #f0f0f0;
+      --text-dim: #6b7280;
+      --text-mid: #9ca3af;
     }
-    html { height: -webkit-fill-available; }
-    input { font-family: inherit; }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { background:var(--bg); color:var(--text); font-family:'Outfit',system-ui,sans-serif; min-height:100vh; overflow-x:hidden; }
+    html { height:-webkit-fill-available; }
+    input,textarea,button { font-family:inherit; }
+    ::-webkit-scrollbar { width:0; }
 
-    .container {
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    .app { max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; position:relative; }
 
-    /* Header */
-    .header {
-      padding: 20px 16px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .logo {
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: #4ade80;
-    }
-    .header-stats {
-      display: flex;
-      gap: 16px;
-      margin-top: 10px;
-    }
-    .header-stat-val {
-      font-size: 15px;
-      font-weight: 700;
-      color: #f8fafc;
-      display: block;
-    }
-    .header-stat-label {
-      font-size: 10px;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    /* === HEADER === */
+    .header { padding:16px 16px 12px; position:relative; z-index:10; }
+    .header-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .logo { font-family:'Space Grotesk',monospace; font-size:15px; font-weight:700; letter-spacing:3px; color:var(--green); text-shadow:0 0 20px var(--green-glow); }
+    .level-badge { display:flex; align-items:center; gap:6px; padding:4px 10px; background:var(--green-dim); border:1px solid rgba(0,255,135,0.2); border-radius:20px; }
+    .level-badge span { font-size:11px; font-weight:700; color:var(--green); letter-spacing:1px; }
+    .xp-bar-container { width:100%; height:4px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+    .xp-bar { height:100%; background:linear-gradient(90deg,var(--green),var(--blue)); border-radius:4px; transition:width 0.8s cubic-bezier(0.16,1,0.3,1); }
+    .xp-label { display:flex; justify-content:space-between; margin-top:4px; }
+    .xp-label span { font-size:10px; color:var(--text-dim); font-weight:600; letter-spacing:0.5px; }
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 2px;
-      padding: 6px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .tab {
-      flex: 1;
-      padding: 10px 8px;
-      background: transparent;
-      border: none;
-      color: #475569;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.15s;
-    }
-    .tab.active {
-      color: #4ade80;
-      background: rgba(74,222,128,0.08);
-    }
+    /* === NAV === */
+    .nav { display:flex; border-top:1px solid var(--card-border); background:rgba(5,5,5,0.95); backdrop-filter:blur(20px); position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; z-index:100; padding:6px 0 env(safe-area-inset-bottom,8px); }
+    .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 4px; background:none; border:none; color:var(--text-dim); cursor:pointer; transition:all 0.2s; position:relative; }
+    .nav-btn.active { color:var(--green); }
+    .nav-btn.active::before { content:''; position:absolute; top:-1px; left:25%; right:25%; height:2px; background:var(--green); border-radius:2px; box-shadow:0 0 8px var(--green-glow); }
+    .nav-icon { font-size:20px; }
+    .nav-label { font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; }
 
-    /* Coach Tab */
-    .coach-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
-    .chat-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: 300px;
-      max-height: calc(100vh - 280px);
-    }
-    .welcome-area {
-      text-align: center;
-      padding: 24px 8px;
-    }
-    .welcome-icon { font-size: 48px; margin-bottom: 12px; }
-    .welcome-title {
-      font-size: 20px;
-      font-weight: 800;
-      color: #f8fafc;
-      margin-bottom: 8px;
-    }
-    .welcome-text {
-      color: #94a3b8;
-      font-size: 14px;
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-    .quick-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-    }
-    .quick-btn {
-      padding: 10px 14px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
-      color: #cbd5e1;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .quick-btn:active {
-      background: rgba(255,255,255,0.1);
-      transform: scale(0.97);
-    }
+    /* === CONTENT === */
+    .content { flex:1; overflow-y:auto; padding-bottom:80px; }
+    .tab { display:none; }
+    .tab.active { display:block; }
 
-    /* Messages */
-    .msg {
-      max-width: 85%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-      line-height: 1.5;
-      white-space: pre-wrap;
+    /* === HOME TAB === */
+    .home-pad { padding:8px 16px 16px; }
+    .streak-card {
+      background:linear-gradient(135deg, rgba(0,255,135,0.08) 0%, rgba(24,220,255,0.05) 100%);
+      border:1px solid rgba(0,255,135,0.15);
+      border-radius:20px;
+      padding:24px 20px;
+      text-align:center;
+      margin-bottom:16px;
+      position:relative;
+      overflow:hidden;
     }
-    .msg.user {
-      align-self: flex-end;
-      background: #4ade80;
-      color: #0a0a0a;
-      border-bottom-right-radius: 4px;
+    .streak-card::before {
+      content:'';
+      position:absolute;
+      top:-50%;left:-50%;width:200%;height:200%;
+      background:radial-gradient(circle at center,rgba(0,255,135,0.05) 0%,transparent 60%);
+      animation:pulse-bg 4s ease-in-out infinite;
     }
-    .msg.assistant {
-      align-self: flex-start;
-      background: rgba(255,255,255,0.06);
-      color: #e2e8f0;
-      border-bottom-left-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .coach-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: #4ade80;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
-    .typing { color: #64748b; font-style: italic; }
+    @keyframes pulse-bg { 0%,100%{opacity:0.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+    .streak-num { font-size:56px; font-weight:900; color:var(--green); position:relative; text-shadow:0 0 40px var(--green-glow); line-height:1; }
+    .streak-label { font-size:12px; font-weight:700; color:var(--text-mid); letter-spacing:2px; text-transform:uppercase; margin-top:4px; position:relative; }
+    .streak-sub { font-size:13px; color:var(--text-dim); margin-top:8px; position:relative; }
 
-    /* Quick replies */
-    .quick-replies {
-      display: flex;
-      gap: 6px;
-      padding: 6px 16px;
-      overflow-x: auto;
+    /* Crush button */
+    .crush-btn {
+      width:100%; padding:18px; border:none; border-radius:16px; cursor:pointer;
+      background:linear-gradient(135deg,#00ff87 0%,#00c9ff 100%);
+      color:#050505; font-size:16px; font-weight:800; letter-spacing:2px; text-transform:uppercase;
+      box-shadow:0 4px 24px rgba(0,255,135,0.3), 0 0 60px rgba(0,255,135,0.1);
+      transition:all 0.15s; position:relative; overflow:hidden; margin-bottom:12px;
     }
-    .quick-reply {
-      padding: 7px 12px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      color: #94a3b8;
-      font-size: 12px;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
+    .crush-btn:active { transform:scale(0.97); box-shadow:0 2px 12px rgba(0,255,135,0.4); }
+    .crush-btn .xp-gain {
+      display:block; font-size:11px; font-weight:600; letter-spacing:1px; opacity:0.7; margin-top:2px;
     }
-
-    /* Input */
-    .input-area {
-      display: flex;
-      gap: 8px;
-      padding: 12px 16px;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      background: rgba(0,0,0,0.3);
-    }
-    .text-input {
-      flex: 1;
-      padding: 12px 16px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 24px;
-      color: #f8fafc;
-      font-size: 14px;
-      outline: none;
-    }
-    .text-input::placeholder { color: #475569; }
-    .send-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: #4ade80;
-      border: none;
-      color: #0a0a0a;
-      font-size: 20px;
-      font-weight: 700;
-      cursor: pointer;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .send-btn:disabled { opacity: 0.4; }
-
-    /* Breathe Tab */
-    .breathe-container {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      min-height: 400px;
-    }
-    .breathe-start { text-align: center; }
-    .breathe-emoji { font-size: 64px; margin-bottom: 16px; }
-    .breathe-title { font-size: 24px; font-weight: 800; color: #f8fafc; margin-bottom: 8px; }
-    .breathe-desc {
-      color: #94a3b8;
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 24px;
-      max-width: 300px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .breathe-start-btn {
-      padding: 14px 32px;
-      background: rgba(96,165,250,0.12);
-      border: 2px solid #60a5fa;
-      border-radius: 30px;
-      color: #60a5fa;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .breathe-active { display: flex; flex-direction: column; align-items: center; }
-    .breath-circle {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      border: 2px solid;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .breath-phase {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      color: #f8fafc;
-    }
-    .breath-round { color: #94a3b8; font-size: 14px; }
-    .breath-stop {
-      margin-top: 16px;
-      padding: 10px 28px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      color: #94a3b8;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    /* Stats Tab */
-    .stats-container {
-      padding: 16px;
-      overflow-y: auto;
-      flex: 1;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .stat-card {
-      background: rgba(255,255,255,0.04);
-      border-radius: 14px;
-      padding: 16px 12px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .stat-val { font-size: 24px; font-weight: 800; color: #f8fafc; }
-    .stat-lbl {
-      font-size: 11px;
-      color: #64748b;
-      margin-top: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .money-card {
-      background: rgba(250,204,21,0.05);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(250,204,21,0.12);
-      text-align: center;
-    }
-    .money-title { font-size: 15px; font-weight: 700; color: #facc15; margin-bottom: 4px; }
-    .money-val { font-size: 36px; font-weight: 900; color: #facc15; margin: 8px 0; }
-    .money-edit {
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 12px;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-    .cost-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .cost-input {
-      width: 70px;
-      padding: 6px 10px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 6px;
-      color: #f8fafc;
-      font-size: 14px;
-      text-align: center;
-    }
-    .cost-save {
-      padding: 6px 14px;
-      background: #facc15;
-      border: none;
-      border-radius: 6px;
-      color: #0a0a0a;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .today-card {
-      background: rgba(74,222,128,0.06);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(74,222,128,0.12);
-    }
-    .today-title { font-size: 15px; font-weight: 700; color: #4ade80; margin-bottom: 8px; }
-    .today-row { display: flex; gap: 16px; font-size: 14px; }
-
-    .log-section { margin-bottom: 16px; }
-    .log-title { font-size: 15px; font-weight: 700; color: #e2e8f0; margin-bottom: 10px; }
-    .log-empty { color: #64748b; font-size: 13px; text-align: center; padding: 20px; }
-    .log-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
-      background: rgba(255,255,255,0.02);
-      border-radius: 8px;
-      border-left: 3px solid;
-      margin-bottom: 4px;
-      font-size: 13px;
-    }
-    .log-action { font-weight: 600; color: #e2e8f0; }
-    .log-time { margin-left: auto; color: #64748b; font-size: 11px; }
 
     .slip-btn {
-      width: 100%;
-      padding: 12px;
-      background: transparent;
-      border: 1px solid rgba(248,113,113,0.2);
-      border-radius: 10px;
-      color: #f87171;
-      font-size: 13px;
-      cursor: pointer;
-      opacity: 0.6;
-      margin-top: 8px;
-    }
-    .reset-btn {
-      background: transparent;
-      border: none;
-      color: #475569;
-      font-size: 12px;
-      cursor: pointer;
-      text-decoration: underline;
-      margin-top: 16px;
-    }
-    .reset-confirm {
-      background: rgba(248,113,113,0.08);
-      border-radius: 10px;
-      padding: 16px;
-      border: 1px solid rgba(248,113,113,0.2);
-      margin-top: 16px;
-      text-align: center;
-    }
-    .reset-confirm p { color: #f87171; margin-bottom: 10px; }
-    .reset-yes {
-      padding: 8px 20px;
-      background: #f87171;
-      border: none;
-      border-radius: 6px;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .reset-no {
-      padding: 8px 20px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      color: #94a3b8;
-      font-size: 13px;
-      cursor: pointer;
-      margin-left: 8px;
+      width:100%; padding:12px; background:transparent; border:1px solid rgba(255,71,87,0.15);
+      border-radius:12px; color:var(--red); font-size:12px; cursor:pointer; opacity:0.5;
+      margin-bottom:16px;
     }
 
-    .hidden { display: none !important; }
+    /* Mini stats row */
+    .mini-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:16px; }
+    .mini-stat {
+      background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+      padding:14px 10px; text-align:center;
+    }
+    .mini-stat-val { font-size:20px; font-weight:800; }
+    .mini-stat-lbl { font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
 
-    /* Motivational messages */
-    .motivation-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 20px;
-      backdrop-filter: blur(4px);
+    /* === HEALTH TIMELINE === */
+    .section-title { font-size:14px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .health-timeline { margin-bottom:20px; }
+    .health-item {
+      display:flex; gap:12px; padding:12px 14px; background:var(--card);
+      border:1px solid var(--card-border); border-radius:14px; margin-bottom:8px;
+      position:relative; overflow:hidden; transition:all 0.3s;
     }
-    .motivation-card {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      border: 2px solid #4ade80;
-      border-radius: 20px;
-      padding: 36px 28px;
-      text-align: center;
-      max-width: 360px;
-      box-shadow: 0 0 60px rgba(74,222,128,0.2);
+    .health-item.unlocked { border-color:rgba(0,255,135,0.2); }
+    .health-item.unlocked::before {
+      content:''; position:absolute; top:0;left:0;right:0;bottom:0;
+      background:linear-gradient(135deg,rgba(0,255,135,0.05),transparent);
     }
-    .motivation-icon { font-size: 48px; margin-bottom: 16px; }
-    .motivation-text {
-      font-size: 18px;
-      font-weight: 600;
-      color: #f8fafc;
-      line-height: 1.5;
-      margin-bottom: 16px;
+    .health-icon { font-size:24px; flex-shrink:0; position:relative; }
+    .health-info { flex:1; position:relative; }
+    .health-time { font-size:11px; font-weight:700; color:var(--green); letter-spacing:0.5px; }
+    .health-time.locked { color:var(--text-dim); }
+    .health-desc { font-size:13px; color:var(--text-mid); margin-top:2px; line-height:1.4; }
+    .health-check { font-size:18px; position:relative; }
+
+    /* === DAILY CHALLENGES === */
+    .challenges { margin-bottom:20px; }
+    .challenge {
+      display:flex; align-items:center; gap:12px; padding:14px;
+      background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+      margin-bottom:8px; cursor:pointer; transition:all 0.2s;
     }
-    .motivation-timer {
-      font-size: 13px;
-      color: #4ade80;
-      font-weight: 600;
-      padding: 8px 16px;
-      background: rgba(74,222,128,0.1);
-      border-radius: 20px;
-      display: inline-block;
+    .challenge.done { opacity:0.5; }
+    .challenge.done .challenge-check { color:var(--green); }
+    .challenge-check { font-size:20px; color:var(--text-dim); flex-shrink:0; }
+    .challenge-info { flex:1; }
+    .challenge-name { font-size:13px; font-weight:600; color:var(--text); }
+    .challenge-xp { font-size:11px; color:var(--gold); font-weight:700; }
+
+    /* === BADGES === */
+    .badges-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:20px; }
+    .badge {
+      display:flex; flex-direction:column; align-items:center; padding:12px 6px;
+      background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+      text-align:center; transition:all 0.3s;
     }
+    .badge.earned { border-color:rgba(255,211,42,0.3); background:rgba(255,211,42,0.05); }
+    .badge.locked { opacity:0.3; filter:grayscale(1); }
+    .badge-icon { font-size:28px; margin-bottom:4px; }
+    .badge-name { font-size:9px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.3px; }
+
+    /* === COACH TAB === */
+    .coach-wrap { display:flex; flex-direction:column; height:calc(100vh - 140px); }
+    .chat-area { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+    .welcome { text-align:center; padding:32px 16px; }
+    .welcome-emoji { font-size:56px; margin-bottom:12px; }
+    .welcome h2 { font-size:22px; font-weight:800; margin-bottom:6px; }
+    .welcome p { color:var(--text-mid); font-size:14px; line-height:1.5; margin-bottom:20px; }
+    .quick-btns { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+    .q-btn {
+      padding:10px 14px; background:var(--card); border:1px solid var(--card-border);
+      border-radius:20px; color:var(--text-mid); font-size:13px; cursor:pointer; transition:all 0.15s;
+    }
+    .q-btn:active { background:rgba(255,255,255,0.08); transform:scale(0.97); }
+    .msg { max-width:85%; padding:10px 14px; border-radius:18px; font-size:14px; line-height:1.5; white-space:pre-wrap; animation:msg-in 0.3s ease-out; }
+    @keyframes msg-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .msg.user { align-self:flex-end; background:linear-gradient(135deg,#00ff87,#00c9ff); color:#050505; border-bottom-right-radius:4px; font-weight:500; }
+    .msg.assistant { align-self:flex-start; background:rgba(255,255,255,0.06); border:1px solid var(--card-border); border-bottom-left-radius:4px; }
+    .msg .coach-tag { font-size:9px; font-weight:800; color:var(--green); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:3px; }
+    .typing { color:var(--text-dim); font-style:italic; font-size:13px; }
+    .quick-row { display:flex; gap:6px; padding:6px 16px; overflow-x:auto; }
+    .qr-btn { padding:7px 12px; background:var(--card); border:1px solid var(--card-border); border-radius:16px; color:var(--text-mid); font-size:12px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+    .input-bar { display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--card-border); background:rgba(5,5,5,0.9); }
+    .msg-input { flex:1; padding:12px 16px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:24px; color:var(--text); font-size:14px; outline:none; }
+    .msg-input::placeholder { color:#4b5563; }
+    .send-btn { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#00ff87,#00c9ff); border:none; color:#050505; font-size:20px; font-weight:800; cursor:pointer; flex-shrink:0; }
+    .send-btn:disabled { opacity:0.3; }
+
+    /* === BREATHE TAB === */
+    .breathe-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 160px); padding:24px; }
+    .breathe-idle { text-align:center; }
+    .breathe-idle .big-emoji { font-size:72px; margin-bottom:16px; }
+    .breathe-idle h2 { font-size:24px; font-weight:800; margin-bottom:8px; }
+    .breathe-idle p { color:var(--text-mid); font-size:14px; line-height:1.6; max-width:300px; margin:0 auto 24px; }
+    .breathe-go {
+      padding:16px 40px; background:transparent; border:2px solid var(--blue);
+      border-radius:30px; color:var(--blue); font-size:16px; font-weight:700; cursor:pointer;
+      box-shadow:0 0 20px rgba(24,220,255,0.15); transition:all 0.2s;
+    }
+    .breathe-go:active { transform:scale(0.97); background:rgba(24,220,255,0.08); }
+    .breathe-running { display:flex; flex-direction:column; align-items:center; }
+    .b-circle {
+      width:200px; height:200px; border-radius:50%; border:2px solid; display:flex;
+      align-items:center; justify-content:center; margin-bottom:24px;
+      box-shadow:0 0 40px rgba(0,0,0,0.3);
+    }
+    .b-phase { font-size:18px; font-weight:800; letter-spacing:3px; }
+    .b-round { color:var(--text-mid); font-size:14px; margin-bottom:16px; }
+    .b-stop { padding:10px 28px; background:var(--card); border:1px solid var(--card-border); border-radius:8px; color:var(--text-mid); font-size:13px; cursor:pointer; }
+
+    /* === JOURNAL TAB === */
+    .journal-pad { padding:16px; }
+    .journal-entry-box {
+      background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+      padding:16px; margin-bottom:16px;
+    }
+    .journal-entry-box h3 { font-size:14px; font-weight:700; margin-bottom:10px; color:var(--text); }
+    .mood-row { display:flex; gap:8px; margin-bottom:12px; }
+    .mood-btn {
+      flex:1; padding:10px 4px; background:var(--card); border:1px solid var(--card-border);
+      border-radius:12px; text-align:center; cursor:pointer; transition:all 0.15s; font-size:13px;
+    }
+    .mood-btn.selected { border-color:var(--green); background:var(--green-dim); }
+    .mood-emoji { font-size:22px; display:block; margin-bottom:2px; }
+    .mood-label { font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.3px; }
+    .journal-textarea {
+      width:100%; min-height:80px; padding:12px; background:rgba(255,255,255,0.03);
+      border:1px solid var(--card-border); border-radius:12px; color:var(--text);
+      font-size:14px; resize:vertical; outline:none; line-height:1.5;
+    }
+    .journal-textarea::placeholder { color:#4b5563; }
+    .journal-save {
+      margin-top:10px; width:100%; padding:12px; background:var(--green);
+      border:none; border-radius:12px; color:#050505; font-size:14px; font-weight:700; cursor:pointer;
+    }
+    .journal-entries { display:flex; flex-direction:column; gap:8px; }
+    .j-entry {
+      background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px;
+    }
+    .j-entry-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .j-entry-date { font-size:12px; color:var(--text-dim); }
+    .j-entry-mood { font-size:18px; }
+    .j-entry-text { font-size:13px; color:var(--text-mid); line-height:1.5; }
+
+    /* === XP POPUP === */
+    .xp-popup {
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+      background:rgba(5,5,5,0.95); border:2px solid var(--gold); border-radius:20px;
+      padding:32px 40px; text-align:center; z-index:200;
+      box-shadow:0 0 60px rgba(255,211,42,0.2); transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .xp-popup.show { transform:translate(-50%,-50%) scale(1); }
+    .xp-popup .xp-amt { font-size:40px; font-weight:900; color:var(--gold); text-shadow:0 0 30px rgba(255,211,42,0.4); }
+    .xp-popup .xp-msg { font-size:14px; color:var(--text-mid); margin-top:6px; }
+    .xp-popup .lvl-up { font-size:18px; font-weight:800; color:var(--green); margin-top:8px; letter-spacing:1px; }
+
+    .overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.6); z-index:199; display:none; }
+    .overlay.show { display:block; }
+
+    .hidden { display:none !important; }
   </style>
 </head>
 <body>
-  <div class="container" id="app">
-    <!-- Header -->
-    <div class="header">
+<div class="app" id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
       <div class="logo">CRAVING CRUSHER</div>
-      <div class="header-stats">
-        <div>
-          <span class="header-stat-val" id="h-streak">0🔥</span>
-          <span class="header-stat-label">streak</span>
-        </div>
-        <div>
-          <span class="header-stat-val" id="h-clean">—</span>
-          <span class="header-stat-label">clean</span>
-        </div>
-        <div>
-          <span class="header-stat-val" id="h-saved">$0.00</span>
-          <span class="header-stat-label">saved</span>
-        </div>
-      </div>
+      <div class="level-badge"><span id="level-text">LVL 1</span></div>
     </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab active" data-tab="coach" onclick="switchTab('coach')">💬 Coach</button>
-      <button class="tab" data-tab="breathe" onclick="switchTab('breathe')">🫁 Breathe</button>
-      <button class="tab" data-tab="stats" onclick="switchTab('stats')">📊 Stats</button>
-    </div>
-
-    <!-- Coach Tab -->
-    <div class="coach-container" id="tab-coach">
-      <div class="chat-area" id="chat-area">
-        <div class="welcome-area" id="welcome">
-          <div class="welcome-icon">✊</div>
-          <div class="welcome-title">Your Craving Coach</div>
-          <p class="welcome-text">Tell me what you're feeling. I'll help you get through it.</p>
-          <div class="quick-buttons">
-            <button class="quick-btn" onclick="sendMsg('I\\'m craving bad right now')">I'm craving bad right now</button>
-            <button class="quick-btn" onclick="sendMsg('I want to go buy some')">I want to go buy some</button>
-            <button class="quick-btn" onclick="sendMsg('I\\'m bored and want to smoke')">I'm bored and want to smoke</button>
-            <button class="quick-btn" onclick="sendMsg('I just worked out and want to reward myself')">I just worked out and want to reward myself</button>
-            <button class="quick-btn" onclick="sendMsg('I\\'m stressed')">I'm stressed</button>
-            <button class="quick-btn" onclick="sendMsg('I slipped up')">I slipped up</button>
-          </div>
-        </div>
-      </div>
-      <div class="quick-replies hidden" id="quick-replies">
-        <button class="quick-reply" onclick="sendMsg('I\\'m still craving')">I'm still craving</button>
-        <button class="quick-reply" onclick="sendMsg('It passed!')">It passed!</button>
-        <button class="quick-reply" onclick="sendMsg('I need help')">I need help</button>
-      </div>
-      <div class="input-area">
-        <input class="text-input" id="msg-input" type="text" placeholder="What are you feeling right now?" onkeydown="if(event.key==='Enter')sendMsg()" />
-        <button class="send-btn" onclick="sendMsg()">↑</button>
-      </div>
-    </div>
-
-    <!-- Breathe Tab -->
-    <div class="breathe-container hidden" id="tab-breathe">
-      <div class="breathe-start" id="breathe-start">
-        <div class="breathe-emoji">🫁</div>
-        <div class="breathe-title">4-4-6 Breathing</div>
-        <p class="breathe-desc">Inhale 4 seconds, hold 4 seconds, exhale 6 seconds. Five rounds to reset your nervous system and kill the craving.</p>
-        <button class="breathe-start-btn" onclick="startBreathing()">Start Breathing</button>
-      </div>
-      <div class="breathe-active hidden" id="breathe-active">
-        <div class="breath-circle" id="breath-circle">
-          <span class="breath-phase" id="breath-phase">BREATHE IN</span>
-        </div>
-        <p class="breath-round" id="breath-round">Round 1 / 5</p>
-        <button class="breath-stop" onclick="stopBreathing()">Stop</button>
-      </div>
-    </div>
-
-    <!-- Stats Tab -->
-    <div class="stats-container hidden" id="tab-stats"></div>
+    <div class="xp-bar-container"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+    <div class="xp-label"><span id="xp-current">0 XP</span><span id="xp-next">100 XP to LVL 2</span></div>
   </div>
 
-  <!-- Motivation overlay -->
-  <div class="motivation-overlay hidden" id="motivation-overlay" onclick="this.classList.add('hidden')">
-    <div class="motivation-card">
-      <div class="motivation-icon">💪</div>
-      <p class="motivation-text" id="motivation-text"></p>
-      <div class="motivation-timer">Craving will pass in ~15 min</div>
+  <!-- Content -->
+  <div class="content">
+    <!-- HOME -->
+    <div class="tab active" id="tab-home">
+      <div class="home-pad">
+        <div class="streak-card">
+          <div class="streak-num" id="streak-num">0</div>
+          <div class="streak-label">CRAVINGS CRUSHED</div>
+          <div class="streak-sub" id="streak-sub">Start your journey</div>
+        </div>
+
+        <button class="crush-btn" onclick="crushCraving()">
+          ✊ CRUSH THIS CRAVING
+          <span class="xp-gain">+25 XP</span>
+        </button>
+        <button class="slip-btn" onclick="logSlip()">I slipped — log it honestly</button>
+
+        <div class="mini-stats">
+          <div class="mini-stat">
+            <div class="mini-stat-val" id="ms-streak" style="color:var(--green)">0🔥</div>
+            <div class="mini-stat-lbl">Streak</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-val" id="ms-clean" style="color:var(--blue)">—</div>
+            <div class="mini-stat-lbl">Clean</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-val" id="ms-saved" style="color:var(--gold)">$0</div>
+            <div class="mini-stat-lbl">Saved</div>
+          </div>
+        </div>
+
+        <!-- Health Timeline -->
+        <div class="section-title">💚 Health Recovery</div>
+        <div class="health-timeline" id="health-timeline"></div>
+
+        <!-- Daily Challenges -->
+        <div class="section-title">⚡ Daily Challenges</div>
+        <div class="challenges" id="challenges"></div>
+
+        <!-- Badges -->
+        <div class="section-title">🏆 Badges</div>
+        <div class="badges-grid" id="badges-grid"></div>
+      </div>
+    </div>
+
+    <!-- COACH -->
+    <div class="tab" id="tab-coach">
+      <div class="coach-wrap">
+        <div class="chat-area" id="chat-area">
+          <div class="welcome" id="welcome">
+            <div class="welcome-emoji">✊</div>
+            <h2>Your Craving Coach</h2>
+            <p>Tell me what you're feeling. I'll help you through it.</p>
+            <div class="quick-btns" id="quick-btns"></div>
+          </div>
+        </div>
+        <div class="quick-row hidden" id="quick-row"></div>
+        <div class="input-bar">
+          <input class="msg-input" id="msg-input" type="text" placeholder="What are you feeling?" onkeydown="if(event.key==='Enter')sendChat()" />
+          <button class="send-btn" onclick="sendChat()">↑</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BREATHE -->
+    <div class="tab" id="tab-breathe">
+      <div class="breathe-wrap">
+        <div class="breathe-idle" id="breathe-idle">
+          <div class="big-emoji">🫁</div>
+          <h2>4-4-6 Breathing</h2>
+          <p>Inhale 4 seconds. Hold 4 seconds. Exhale 6 seconds. Five rounds to kill the craving.</p>
+          <button class="breathe-go" onclick="startBreathing()">Start Breathing</button>
+        </div>
+        <div class="breathe-running hidden" id="breathe-running">
+          <div class="b-circle" id="b-circle"><span class="b-phase" id="b-phase">BREATHE IN</span></div>
+          <div class="b-round" id="b-round">Round 1 / 5</div>
+          <button class="b-stop" onclick="stopBreathing()">Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNAL -->
+    <div class="tab" id="tab-journal">
+      <div class="journal-pad">
+        <div class="journal-entry-box">
+          <h3>How are you feeling?</h3>
+          <div class="mood-row" id="mood-row"></div>
+          <textarea class="journal-textarea" id="journal-text" placeholder="What's on your mind? What triggered your craving? What helped?"></textarea>
+          <button class="journal-save" onclick="saveJournal()">Save Entry (+15 XP)</button>
+        </div>
+        <div class="section-title">📝 Past Entries</div>
+        <div class="journal-entries" id="journal-entries"></div>
+      </div>
     </div>
   </div>
 
-  <script>
-    // ===== DATA =====
-    const STORAGE_KEY = 'craving-crusher-data-v3';
-    let appData = {
-      cravings: [],
-      lastSmoke: null,
-      quitDate: null,
-      dailyCost: 15,
-      totalResisted: 0,
-      chatHistory: []
-    };
-    let messages = [];
-    let sending = false;
+  <!-- Nav -->
+  <div class="nav">
+    <button class="nav-btn active" data-tab="home" onclick="switchTab('home')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+    <button class="nav-btn" data-tab="coach" onclick="switchTab('coach')"><span class="nav-icon">💬</span><span class="nav-label">Coach</span></button>
+    <button class="nav-btn" data-tab="breathe" onclick="switchTab('breathe')"><span class="nav-icon">🫁</span><span class="nav-label">Breathe</span></button>
+    <button class="nav-btn" data-tab="journal" onclick="switchTab('journal')"><span class="nav-icon">📝</span><span class="nav-label">Journal</span></button>
+  </div>
+</div>
 
-    function loadData() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          appData = JSON.parse(raw);
-          messages = appData.chatHistory || [];
-        }
-      } catch(e) {}
-      updateHeader();
+<!-- XP Popup -->
+<div class="overlay" id="overlay"></div>
+<div class="xp-popup" id="xp-popup">
+  <div class="xp-amt" id="xp-popup-amt">+25 XP</div>
+  <div class="xp-msg" id="xp-popup-msg">Craving crushed!</div>
+  <div class="lvl-up hidden" id="xp-popup-lvl">🎉 LEVEL UP!</div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const HEALTH_MILESTONES = [
+  { time: 1200, icon:'💓', title:'20 minutes', desc:'Heart rate and blood pressure dropping back to normal' },
+  { time: 28800, icon:'🫁', title:'8 hours', desc:'Oxygen levels recovering, carbon monoxide cut in half' },
+  { time: 86400, icon:'❤️', title:'24 hours', desc:'Heart attack risk already starting to decrease' },
+  { time: 172800, icon:'👃', title:'48 hours', desc:'Sense of smell and taste starting to improve' },
+  { time: 259200, icon:'🌬️', title:'72 hours', desc:'Breathing gets easier, bronchial tubes relaxing' },
+  { time: 1209600, icon:'🏃', title:'2 weeks', desc:'Circulation improved, lung function increasing up to 30%' },
+  { time: 2592000, icon:'🫀', title:'1 month', desc:'Coughing and shortness of breath decreasing significantly' },
+  { time: 7776000, icon:'🧬', title:'3 months', desc:'Lung cilia regrowing, infection risk dropping' },
+  { time: 31536000, icon:'🏆', title:'1 year', desc:'Heart disease risk is now HALF of a smoker\'s' },
+];
+
+const BADGES_DEF = [
+  { id:'first', icon:'🌱', name:'First Step', desc:'Log your first craving', check: d => d.totalResisted >= 1 },
+  { id:'five', icon:'✋', name:'High Five', desc:'Crush 5 cravings', check: d => d.totalResisted >= 5 },
+  { id:'ten', icon:'💪', name:'Double Digits', desc:'Crush 10 cravings', check: d => d.totalResisted >= 10 },
+  { id:'25', icon:'🔥', name:'On Fire', desc:'Crush 25 cravings', check: d => d.totalResisted >= 25 },
+  { id:'50', icon:'⚡', name:'Unstoppable', desc:'Crush 50 cravings', check: d => d.totalResisted >= 50 },
+  { id:'100', icon:'👑', name:'Centurion', desc:'Crush 100 cravings', check: d => d.totalResisted >= 100 },
+  { id:'streak5', icon:'🎯', name:'5 Streak', desc:'5 in a row', check: d => getStreak(d) >= 5 },
+  { id:'streak10', icon:'💎', name:'10 Streak', desc:'10 in a row', check: d => getStreak(d) >= 10 },
+  { id:'day1', icon:'🌅', name:'Day One', desc:'24 hours clean', check: d => d.quitDate && (Date.now()-d.quitDate)>=86400000 },
+  { id:'week1', icon:'📅', name:'One Week', desc:'7 days clean', check: d => d.quitDate && (Date.now()-d.quitDate)>=604800000 },
+  { id:'month1', icon:'🗓️', name:'One Month', desc:'30 days clean', check: d => d.quitDate && (Date.now()-d.quitDate)>=2592000000 },
+  { id:'journal5', icon:'📖', name:'Reflector', desc:'5 journal entries', check: d => (d.journal||[]).length >= 5 },
+];
+
+const DAILY_CHALLENGES = [
+  { id:'crush3', name:'Crush 3 cravings today', xp:30, check: d => todayResisted(d) >= 3 },
+  { id:'breathe1', name:'Complete a breathing exercise', xp:20, check: d => d.todayBreathing },
+  { id:'journal1', name:'Write a journal entry', xp:15, check: d => todayJournal(d) },
+  { id:'noslip', name:'Zero slips today', xp:40, check: d => todaySlips(d) === 0 && todayCravings(d).length > 0 },
+];
+
+const QUICK_MSGS = [
+  "I'm craving bad right now",
+  "I want to go buy some",
+  "I'm bored and want to smoke",
+  "Just worked out, want a reward",
+  "I'm stressed",
+  "I slipped up"
+];
+
+const FOLLOW_UPS = ["I'm still craving","It passed!","I need help"];
+
+const MOTIVATIONAL = [
+  "This craving will pass in 15 minutes. You're stronger than it.",
+  "Every craving you beat makes the next one weaker.",
+  "Your lungs are healing right now. Don't reset the clock.",
+  "You didn't come this far to only come this far.",
+  "3 deep breaths. In through the nose, out through the mouth.",
+  "The urge is your brain lying. You don't need it.",
+  "Stand up and do 10 pushups. Seriously. Right now.",
+  "Drink cold water. Walk to another room. Change your state.",
+  "Picture yourself clear-headed at your next interview.",
+  "Every minute clean is a rep for your future self."
+];
+
+const MOODS = [
+  { emoji:'😤', label:'Craving' },
+  { emoji:'😰', label:'Anxious' },
+  { emoji:'😊', label:'Good' },
+  { emoji:'💪', label:'Strong' },
+  { emoji:'😔', label:'Down' },
+];
+
+const SYSTEM_PROMPT = `You are a quit-smoking coach. The user is quitting tobacco and weed. Rules:
+- 2-4 sentences MAX. Short and punchy.
+- Be direct, real, supportive. Like a tough friend.
+- Give a specific action to do RIGHT NOW.
+- Call out excuses compassionately.
+- No shame on slips. Help reset.
+- Reference their stats when motivating.`;
+
+// ===== STATE =====
+let D = { cravings:[], lastSmoke:null, quitDate:null, dailyCost:15, totalResisted:0, xp:0, level:1, chatHistory:[], journal:[], completedChallenges:{}, todayBreathing:false, earnedBadges:[] };
+let chatMsgs = [];
+let sending = false;
+let selectedMood = null;
+
+// ===== HELPERS =====
+function getStreak(d) { let s=0; for(let i=d.cravings.length-1;i>=0;i--){if(d.cravings[i].resisted)s++;else break;} return s; }
+function todayCravings(d) { const t=new Date().toDateString(); return d.cravings.filter(c=>new Date(c.ts).toDateString()===t); }
+function todayResisted(d) { return todayCravings(d).filter(c=>c.resisted).length; }
+function todaySlips(d) { return todayCravings(d).filter(c=>!c.resisted).length; }
+function todayJournal(d) { const t=new Date().toDateString(); return (d.journal||[]).some(j=>new Date(j.ts).toDateString()===t); }
+function fmtDur(s) { if(!s||s<0)return'—'; if(s<60)return s+'s'; if(s<3600)return Math.floor(s/60)+'m'; const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); if(s<86400)return h+'h '+m+'m'; const d=Math.floor(s/86400),rh=Math.floor((s%86400)/3600); return d+'d '+rh+'h'; }
+
+function xpForLevel(lvl) { return 50 + (lvl * 50); }
+function addXP(amount, msg) {
+  const oldLevel = D.level;
+  D.xp += amount;
+  let needed = xpForLevel(D.level);
+  while(D.xp >= needed) { D.xp -= needed; D.level++; needed = xpForLevel(D.level); }
+  save();
+  updateHeader();
+  // Show popup
+  const popup = document.getElementById('xp-popup');
+  const overlay = document.getElementById('overlay');
+  document.getElementById('xp-popup-amt').textContent = '+' + amount + ' XP';
+  document.getElementById('xp-popup-msg').textContent = msg || 'Nice work!';
+  const lvlEl = document.getElementById('xp-popup-lvl');
+  if(D.level > oldLevel) { lvlEl.textContent = '🎉 LEVEL ' + D.level + '!'; lvlEl.classList.remove('hidden'); } else { lvlEl.classList.add('hidden'); }
+  popup.classList.add('show');
+  overlay.classList.add('show');
+  setTimeout(()=>{ popup.classList.remove('show'); overlay.classList.remove('show'); }, 1800);
+}
+
+// ===== STORAGE =====
+const SK = 'craving-crusher-v4';
+function load() { try{const r=localStorage.getItem(SK);if(r)D=JSON.parse(r);chatMsgs=D.chatHistory||[];}catch(e){} }
+function save() { D.chatHistory=chatMsgs.slice(-30); try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){} }
+
+// ===== TABS =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.nav-btn[data-tab="${tab}"]`).classList.add('active');
+  if(tab==='home') renderHome();
+  if(tab==='journal') renderJournal();
+}
+
+// ===== HEADER =====
+function updateHeader() {
+  document.getElementById('level-text').textContent = 'LVL ' + D.level;
+  const needed = xpForLevel(D.level);
+  const pct = (D.xp / needed * 100).toFixed(1);
+  document.getElementById('xp-bar').style.width = pct + '%';
+  document.getElementById('xp-current').textContent = D.xp + ' XP';
+  document.getElementById('xp-next').textContent = needed + ' XP to LVL ' + (D.level+1);
+}
+
+// ===== HOME =====
+function renderHome() {
+  const streak = getStreak(D);
+  const cleanSec = D.quitDate ? Math.floor((Date.now()-D.quitDate)/1000) : 0;
+  const days = D.quitDate ? (Date.now()-D.quitDate)/86400000 : 0;
+  const saved = (days * D.dailyCost).toFixed(2);
+
+  document.getElementById('streak-num').textContent = D.totalResisted;
+  document.getElementById('streak-sub').textContent = D.quitDate ? fmtDur(cleanSec) + ' smoke-free' : 'Press the button when you feel a craving';
+  document.getElementById('ms-streak').textContent = streak + '🔥';
+  document.getElementById('ms-clean').textContent = D.quitDate ? fmtDur(cleanSec) : '—';
+  document.getElementById('ms-saved').textContent = '$' + saved;
+
+  // Health timeline
+  const ht = document.getElementById('health-timeline');
+  ht.innerHTML = '';
+  HEALTH_MILESTONES.forEach(m => {
+    const unlocked = cleanSec >= m.time;
+    ht.innerHTML += `<div class="health-item ${unlocked?'unlocked':''}">
+      <div class="health-icon">${m.icon}</div>
+      <div class="health-info">
+        <div class="health-time ${unlocked?'':'locked'}">${m.title}${unlocked?' ✓':''}</div>
+        <div class="health-desc">${m.desc}</div>
+      </div>
+    </div>`;
+  });
+
+  // Challenges
+  const ch = document.getElementById('challenges');
+  const today = new Date().toDateString();
+  ch.innerHTML = '';
+  DAILY_CHALLENGES.forEach(c => {
+    const done = c.check(D);
+    const claimed = D.completedChallenges[today+'_'+c.id];
+    if(done && !claimed) { D.completedChallenges[today+'_'+c.id]=true; addXP(c.xp, c.name); save(); }
+    ch.innerHTML += `<div class="challenge ${done?'done':''}">
+      <div class="challenge-check">${done?'✅':'⬜'}</div>
+      <div class="challenge-info">
+        <div class="challenge-name">${c.name}</div>
+        <div class="challenge-xp">${done?'Completed':'⚡ '+c.xp+' XP'}</div>
+      </div>
+    </div>`;
+  });
+
+  // Badges
+  const bg = document.getElementById('badges-grid');
+  bg.innerHTML = '';
+  BADGES_DEF.forEach(b => {
+    const earned = b.check(D);
+    if(earned && !D.earnedBadges.includes(b.id)) { D.earnedBadges.push(b.id); save(); }
+    bg.innerHTML += `<div class="badge ${earned?'earned':'locked'}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+    </div>`;
+  });
+
+  updateHeader();
+}
+
+function crushCraving() {
+  D.cravings.push({ts:Date.now(), resisted:true});
+  D.totalResisted++;
+  if(!D.quitDate) D.quitDate = Date.now();
+  save();
+  addXP(25, 'Craving crushed!');
+  renderHome();
+}
+
+function logSlip() {
+  D.cravings.push({ts:Date.now(), resisted:false});
+  D.lastSmoke = Date.now();
+  save();
+  renderHome();
+}
+
+// ===== COACH =====
+function initCoach() {
+  const qb = document.getElementById('quick-btns');
+  qb.innerHTML = QUICK_MSGS.map(m=>`<button class="q-btn" onclick="sendChat('${m.replace(/'/g,"\\'")}')">${m}</button>`).join('');
+  const qr = document.getElementById('quick-row');
+  qr.innerHTML = FOLLOW_UPS.map(m=>`<button class="qr-btn" onclick="sendChat('${m.replace(/'/g,"\\'")}')">${m}</button>`).join('');
+
+  if(chatMsgs.length > 0) {
+    document.getElementById('welcome').classList.add('hidden');
+    document.getElementById('quick-row').classList.remove('hidden');
+    const ca = document.getElementById('chat-area');
+    chatMsgs.forEach(m => appendMsg(m.role, m.content, false));
+  }
+}
+
+function appendMsg(role, content, animate=true) {
+  const ca = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  if(!animate) div.style.animation = 'none';
+  if(role==='assistant') {
+    div.innerHTML = '<div class="coach-tag">Coach</div>' + escapeHtml(content);
+  } else {
+    div.textContent = content;
+  }
+  ca.appendChild(div);
+  ca.scrollTop = ca.scrollHeight;
+}
+
+function escapeHtml(t) { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+async function sendChat(text) {
+  if(!text) text = document.getElementById('msg-input').value;
+  if(!text||!text.trim()||sending) return;
+  text = text.trim();
+  document.getElementById('msg-input').value = '';
+  document.getElementById('welcome').classList.add('hidden');
+  document.getElementById('quick-row').classList.remove('hidden');
+  sending = true;
+
+  chatMsgs.push({role:'user',content:text});
+  appendMsg('user', text);
+
+  // Log craving + XP
+  crushCraving();
+
+  // Typing indicator
+  const ca = document.getElementById('chat-area');
+  const typing = document.createElement('div');
+  typing.className = 'msg assistant';
+  typing.id = 'typing-indicator';
+  typing.innerHTML = '<div class="coach-tag">Coach</div><span class="typing">thinking...</span>';
+  ca.appendChild(typing);
+  ca.scrollTop = ca.scrollHeight;
+
+  const streak = getStreak(D);
+  const cleanSec = D.quitDate ? Math.floor((Date.now()-D.quitDate)/1000) : 0;
+  const statsCtx = `Stats: ${streak} streak, ${D.totalResisted} total crushed, ${D.quitDate?fmtDur(cleanSec):'just starting'} clean, Level ${D.level}`;
+
+  let reply = '';
+  try {
+    const apiMsgs = chatMsgs.slice(-10).map(m=>({role:m.role,content:m.content}));
+    const last = apiMsgs[apiMsgs.length-1];
+    apiMsgs[apiMsgs.length-1] = {...last, content:`[${statsCtx}]\n\n${last.content}`};
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey()},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM_PROMPT,messages:apiMsgs})
+    });
+    const data = await resp.json();
+    reply = data.content?.filter(b=>b.type==='text').map(b=>b.text).join('\n') || '';
+  } catch(e) {}
+
+  if(!reply) reply = MOTIVATIONAL[Math.floor(Math.random()*MOTIVATIONAL.length)];
+
+  const ti = document.getElementById('typing-indicator');
+  if(ti) ti.remove();
+
+  chatMsgs.push({role:'assistant',content:reply});
+  appendMsg('assistant', reply);
+  save();
+  sending = false;
+}
+
+function getApiKey() {
+  let k = localStorage.getItem('cc-api-key');
+  if(!k) {
+    k = prompt('Enter your Anthropic API key for AI coaching.\n\nGet one at console.anthropic.com\n\nLeave blank for offline mode.');
+    if(k) localStorage.setItem('cc-api-key', k);
+  }
+  return k || '';
+}
+
+// ===== BREATHING =====
+let breathTimeout = null;
+function startBreathing() {
+  document.getElementById('breathe-idle').classList.add('hidden');
+  document.getElementById('breathe-running').classList.remove('hidden');
+  let round=0, pi=0;
+  const phases = [
+    {name:'BREATHE IN',dur:4000,scale:'1.3',bg:'rgba(0,255,135,0.12)',border:'#00ff87',trans:'4s ease-in'},
+    {name:'HOLD',dur:4000,scale:'1.3',bg:'rgba(255,211,42,0.12)',border:'#ffd32a',trans:'0.1s'},
+    {name:'BREATHE OUT',dur:6000,scale:'0.7',bg:'rgba(24,220,255,0.12)',border:'#18dcff',trans:'6s ease-out'}
+  ];
+  function run() {
+    const p=phases[pi];
+    const c=document.getElementById('b-circle');
+    const l=document.getElementById('b-phase');
+    l.textContent=p.name; c.style.transform=`scale(${p.scale})`; c.style.transition=`all ${p.trans}`;
+    c.style.background=p.bg; c.style.borderColor=p.border; c.style.boxShadow=`0 0 40px ${p.bg}`;
+    pi++;
+    if(pi>=phases.length){pi=0;round++;document.getElementById('b-round').textContent=`Round ${Math.min(round+1,5)} / 5`;
+      if(round>=5){stopBreathing();D.todayBreathing=true;save();addXP(20,'Breathing complete!');renderHome();return;}
     }
+    breathTimeout=setTimeout(run,p.dur);
+  }
+  run();
+}
 
-    function saveData() {
-      appData.chatHistory = messages.slice(-30);
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); } catch(e) {}
-    }
+function stopBreathing() {
+  clearTimeout(breathTimeout);
+  document.getElementById('breathe-idle').classList.remove('hidden');
+  document.getElementById('breathe-running').classList.add('hidden');
+  const c=document.getElementById('b-circle'); c.style.transform='scale(1)';
+}
 
-    // ===== UTILS =====
-    function formatDuration(sec) {
-      if (!sec || sec < 0) return '—';
-      if (sec < 60) return sec + 's';
-      if (sec < 3600) return Math.floor(sec/60) + 'm';
-      const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60);
-      if (sec < 86400) return h + 'h ' + m + 'm';
-      const d = Math.floor(sec/86400), rh = Math.floor((sec%86400)/3600);
-      return d + 'd ' + rh + 'h';
-    }
+// ===== JOURNAL =====
+function renderJournal() {
+  // Mood buttons
+  const mr = document.getElementById('mood-row');
+  mr.innerHTML = MOODS.map((m,i)=>`<button class="mood-btn ${selectedMood===i?'selected':''}" onclick="selectMood(${i})"><span class="mood-emoji">${m.emoji}</span><span class="mood-label">${m.label}</span></button>`).join('');
 
-    function getStats() {
-      const now = Date.now();
-      const timeSinceQuit = appData.quitDate ? Math.floor((now - appData.quitDate) / 1000) : 0;
-      const daysSinceQuit = appData.quitDate ? (now - appData.quitDate) / 86400000 : 0;
-      const moneySaved = (daysSinceQuit * appData.dailyCost).toFixed(2);
-      let streak = 0;
-      for (let i = appData.cravings.length - 1; i >= 0; i--) {
-        if (appData.cravings[i].resisted) streak++; else break;
-      }
-      const today = new Date().toDateString();
-      const todayCravings = appData.cravings.filter(c => new Date(c.ts).toDateString() === today);
-      const successRate = appData.cravings.length > 0
-        ? Math.round((appData.totalResisted / appData.cravings.length) * 100) : 0;
-      return { timeSinceQuit, daysSinceQuit, moneySaved, streak, todayCravings, successRate };
-    }
+  // Entries
+  const je = document.getElementById('journal-entries');
+  const entries = (D.journal||[]).slice().reverse();
+  if(entries.length===0) {
+    je.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:20px;font-size:13px">No entries yet. Write your first one above.</p>';
+  } else {
+    je.innerHTML = entries.slice(0,20).map(e=>`<div class="j-entry">
+      <div class="j-entry-header">
+        <span class="j-entry-date">${new Date(e.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</span>
+        <span class="j-entry-mood">${e.mood||''}</span>
+      </div>
+      <div class="j-entry-text">${escapeHtml(e.text)}</div>
+    </div>`).join('');
+  }
+}
 
-    function updateHeader() {
-      const s = getStats();
-      document.getElementById('h-streak').textContent = s.streak + '🔥';
-      document.getElementById('h-clean').textContent = appData.quitDate ? formatDuration(s.timeSinceQuit) : '—';
-      document.getElementById('h-saved').textContent = '$' + s.moneySaved;
-    }
+function selectMood(i) { selectedMood=i; renderJournal(); }
 
-    // ===== TABS =====
-    function switchTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
-      ['coach','breathe','stats'].forEach(t => {
-        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
-      });
-      if (tab === 'stats') renderStats();
-      updateHeader();
-    }
+function saveJournal() {
+  const text = document.getElementById('journal-text').value.trim();
+  if(!text) return;
+  if(!D.journal) D.journal = [];
+  D.journal.push({ ts:Date.now(), text, mood: selectedMood!==null ? MOODS[selectedMood].emoji : '' });
+  save();
+  addXP(15, 'Journal entry saved!');
+  document.getElementById('journal-text').value = '';
+  selectedMood = null;
+  renderJournal();
+  renderHome();
+}
 
-    // ===== COACH =====
-    const MOTIVATIONAL = [
-      "This craving will pass in 15 minutes. You're stronger than it.",
-      "Every craving you beat makes the next one weaker.",
-      "Your lungs are healing right now. Don't reset the clock.",
-      "Think about the interview prep you could do instead.",
-      "You didn't come this far to only come this far.",
-      "This feeling is temporary. Your goals are permanent.",
-      "3 deep breaths. In through the nose, out through the mouth.",
-      "Remember why you started. The gym, the career, the future.",
-      "The urge is just your brain lying to you. It doesn't need it.",
-      "You're reprogramming your brain right now. Stay strong.",
-      "Every minute without smoking is a win. Stack the wins.",
-      "Picture yourself at the interview, clear-headed and sharp.",
-      "The best version of you doesn't smoke. Become that person today.",
-      "Drink some water. Walk around. The craving will fade.",
-      "You've survived every craving you've ever had. This one's no different."
-    ];
+// ===== INIT =====
+load();
+updateHeader();
+renderHome();
+initCoach();
+renderJournal();
 
-    const SYSTEM_PROMPT = `You are a quit-smoking coach inside a craving support app. The user is trying to quit both tobacco and weed. Your job is to help them get through cravings in the moment.
+// Reset daily challenges at midnight
+const resetDaily = () => { D.todayBreathing = false; save(); };
+const msToMidnight = new Date().setHours(24,0,0,0) - Date.now();
+setTimeout(()=>{ resetDaily(); setInterval(resetDaily, 86400000); }, msToMidnight);
 
-Rules:
-- Be direct, real, and supportive. No fluff.
-- Keep responses SHORT — 2-4 sentences max. This is a phone app, not an essay.
-- Acknowledge what they're feeling without judgment
-- Remind them cravings pass in 15-20 minutes
-- Give them a specific action to do RIGHT NOW
-- If they say they slipped, don't shame them. Help them reset.
-- If they're making excuses, call it out compassionately but honestly
-- Never be preachy. Be like a tough but caring friend.`;
-
-    function logCraving(resisted) {
-      appData.cravings.push({ ts: Date.now(), resisted });
-      if (resisted) appData.totalResisted++;
-      if (!appData.quitDate) appData.quitDate = Date.now();
-      if (!resisted) appData.lastSmoke = Date.now();
-      saveData();
-      updateHeader();
-    }
-
-    function addMessage(role, content) {
-      messages.push({ role, content });
-      const chatArea = document.getElementById('chat-area');
-      const welcome = document.getElementById('welcome');
-      if (welcome) welcome.classList.add('hidden');
-
-      const div = document.createElement('div');
-      div.className = 'msg ' + role;
-      if (role === 'assistant') {
-        div.innerHTML = '<div class="coach-label">Coach</div>' + escapeHtml(content);
-      } else {
-        div.textContent = content;
-      }
-      chatArea.appendChild(div);
-      chatArea.scrollTop = chatArea.scrollHeight;
-      document.getElementById('quick-replies').classList.remove('hidden');
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    async function sendMsg(text) {
-      if (!text) text = document.getElementById('msg-input').value;
-      if (!text || !text.trim() || sending) return;
-      text = text.trim();
-      document.getElementById('msg-input').value = '';
-      sending = true;
-
-      addMessage('user', text);
-      logCraving(true);
-
-      // Show typing
-      const chatArea = document.getElementById('chat-area');
-      const typingDiv = document.createElement('div');
-      typingDiv.className = 'msg assistant';
-      typingDiv.id = 'typing';
-      typingDiv.innerHTML = '<div class="coach-label">Coach</div><span class="typing">thinking...</span>';
-      chatArea.appendChild(typingDiv);
-      chatArea.scrollTop = chatArea.scrollHeight;
-
-      const stats = getStats();
-      const statsCtx = `User stats: ${stats.streak} cravings resisted in a row, ${appData.totalResisted} total, ${appData.quitDate ? formatDuration(stats.timeSinceQuit) : 'just starting'} smoke-free, $${stats.moneySaved} saved.`;
-
-      let reply = '';
-      try {
-        const apiMessages = messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
-        const last = apiMessages[apiMessages.length - 1];
-        apiMessages[apiMessages.length - 1] = { ...last, content: `[${statsCtx}]\n\n${last.content}` };
-
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': getApiKey() },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            system: SYSTEM_PROMPT,
-            messages: apiMessages
-          })
-        });
-        const data = await resp.json();
-        reply = data.content?.filter(b => b.type === 'text').map(b => b.text).join('\n') || '';
-      } catch(e) {}
-
-      if (!reply) {
-        reply = MOTIVATIONAL[Math.floor(Math.random() * MOTIVATIONAL.length)];
-      }
-
-      const typing = document.getElementById('typing');
-      if (typing) typing.remove();
-
-      addMessage('assistant', reply);
-      saveData();
-      sending = false;
-    }
-
-    function getApiKey() {
-      let key = localStorage.getItem('cc-api-key');
-      if (!key) {
-        key = prompt('Enter your Anthropic API key to enable the AI coach.\n\nYou can get one at console.anthropic.com.\n\nLeave blank for offline mode (motivational messages only).');
-        if (key) localStorage.setItem('cc-api-key', key);
-      }
-      return key || '';
-    }
-
-    // ===== BREATHING =====
-    let breathInterval = null;
-    let breathTimeout = null;
-
-    function startBreathing() {
-      document.getElementById('breathe-start').classList.add('hidden');
-      document.getElementById('breathe-active').classList.remove('hidden');
-      let round = 0;
-      const phases = [
-        { name: 'BREATHE IN', duration: 4000, scale: '1.3', bg: 'rgba(74,222,128,0.15)', border: '#4ade80' },
-        { name: 'HOLD', duration: 4000, scale: '1.3', bg: 'rgba(250,204,21,0.15)', border: '#facc15' },
-        { name: 'BREATHE OUT', duration: 6000, scale: '0.7', bg: 'rgba(96,165,250,0.15)', border: '#60a5fa' }
-      ];
-      let pi = 0;
-
-      function runPhase() {
-        const p = phases[pi];
-        const circle = document.getElementById('breath-circle');
-        const label = document.getElementById('breath-phase');
-        label.textContent = p.name;
-        circle.style.transform = `scale(${p.scale})`;
-        circle.style.transition = `transform ${p.duration/1000}s ease`;
-        circle.style.background = p.bg;
-        circle.style.borderColor = p.border;
-
-        pi++;
-        if (pi >= phases.length) {
-          pi = 0;
-          round++;
-          document.getElementById('breath-round').textContent = `Round ${Math.min(round+1, 5)} / 5`;
-          if (round >= 5) { stopBreathing(); return; }
-        }
-        breathTimeout = setTimeout(runPhase, p.duration);
-      }
-      runPhase();
-    }
-
-    function stopBreathing() {
-      clearTimeout(breathTimeout);
-      document.getElementById('breathe-start').classList.remove('hidden');
-      document.getElementById('breathe-active').classList.add('hidden');
-      const circle = document.getElementById('breath-circle');
-      circle.style.transform = 'scale(1)';
-    }
-
-    // ===== STATS =====
-    function renderStats() {
-      const s = getStats();
-      const container = document.getElementById('tab-stats');
-      const todayR = s.todayCravings.filter(c => c.resisted).length;
-      const todayS = s.todayCravings.filter(c => !c.resisted).length;
-
-      let logHtml = '';
-      if (appData.cravings.length === 0) {
-        logHtml = '<p class="log-empty">No cravings logged yet.</p>';
-      } else {
-        [...appData.cravings].reverse().slice(0, 20).forEach(c => {
-          const d = new Date(c.ts).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit', hour12:true });
-          logHtml += `<div class="log-item" style="border-left-color:${c.resisted ? '#4ade80' : '#f87171'}">
-            <span>${c.resisted ? '✅' : '🚬'}</span>
-            <span class="log-action">${c.resisted ? 'Resisted' : 'Slipped'}</span>
-            <span class="log-time">${d}</span>
-          </div>`;
-        });
-      }
-
-      container.innerHTML = `
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-val">${appData.totalResisted}</div><div class="stat-lbl">Cravings Crushed</div></div>
-          <div class="stat-card"><div class="stat-val">${s.streak}🔥</div><div class="stat-lbl">Current Streak</div></div>
-          <div class="stat-card"><div class="stat-val">${s.successRate}%</div><div class="stat-lbl">Success Rate</div></div>
-          <div class="stat-card"><div class="stat-val">${Math.floor(s.daysSinceQuit || 0)}</div><div class="stat-lbl">Days In</div></div>
-        </div>
-        <div class="money-card">
-          <div class="money-title">💰 Money Saved</div>
-          <div class="money-val">$${s.moneySaved}</div>
-          <button class="money-edit" onclick="editCost()">Daily spend: $${appData.dailyCost} — tap to edit</button>
-          <div class="cost-row hidden" id="cost-editor">
-            <span style="color:#94a3b8;font-size:13px">$/day:</span>
-            <input class="cost-input" id="cost-input" type="number" value="${appData.dailyCost}" />
-            <button class="cost-save" onclick="saveCost()">Save</button>
-          </div>
-        </div>
-        <div class="today-card">
-          <div class="today-title">Today</div>
-          <div class="today-row">
-            <span style="color:#4ade80">✅ ${todayR} resisted</span>
-            <span style="color:#f87171">⚠️ ${todayS} slips</span>
-          </div>
-        </div>
-        <div class="log-section">
-          <div class="log-title">Recent Log</div>
-          ${logHtml}
-        </div>
-        <button class="slip-btn" onclick="logSlip()">Log a slip honestly</button>
-        <div style="text-align:center">
-          <button class="reset-btn" id="reset-btn" onclick="showResetConfirm()">Reset All Data</button>
-          <div class="reset-confirm hidden" id="reset-confirm">
-            <p>This can't be undone.</p>
-            <button class="reset-yes" onclick="resetAll()">Yes, Reset</button>
-            <button class="reset-no" onclick="document.getElementById('reset-confirm').classList.add('hidden')">Cancel</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function editCost() {
-      const editor = document.getElementById('cost-editor');
-      if (editor) editor.classList.remove('hidden');
-    }
-
-    function saveCost() {
-      const val = parseFloat(document.getElementById('cost-input').value);
-      if (!isNaN(val) && val > 0) {
-        appData.dailyCost = val;
-        saveData();
-        renderStats();
-        updateHeader();
-      }
-    }
-
-    function logSlip() {
-      logCraving(false);
-      renderStats();
-    }
-
-    function showResetConfirm() {
-      document.getElementById('reset-confirm').classList.remove('hidden');
-    }
-
-    function resetAll() {
-      appData = { cravings: [], lastSmoke: null, quitDate: null, dailyCost: appData.dailyCost, totalResisted: 0, chatHistory: [] };
-      messages = [];
-      saveData();
-      renderStats();
-      updateHeader();
-      // Reset chat
-      const chatArea = document.getElementById('chat-area');
-      chatArea.innerHTML = `<div class="welcome-area" id="welcome">
-        <div class="welcome-icon">✊</div>
-        <div class="welcome-title">Your Craving Coach</div>
-        <p class="welcome-text">Tell me what you're feeling. I'll help you get through it.</p>
-        <div class="quick-buttons">
-          <button class="quick-btn" onclick="sendMsg('I\\'m craving bad right now')">I'm craving bad right now</button>
-          <button class="quick-btn" onclick="sendMsg('I want to go buy some')">I want to go buy some</button>
-          <button class="quick-btn" onclick="sendMsg('I\\'m bored and want to smoke')">I'm bored and want to smoke</button>
-          <button class="quick-btn" onclick="sendMsg('I just worked out and want to reward myself')">I just worked out and want to reward myself</button>
-          <button class="quick-btn" onclick="sendMsg('I\\'m stressed')">I'm stressed</button>
-          <button class="quick-btn" onclick="sendMsg('I slipped up')">I slipped up</button>
-        </div>
-      </div>`;
-      document.getElementById('quick-replies').classList.add('hidden');
-    }
-
-    // ===== INIT =====
-    loadData();
-    // Render existing messages
-    if (messages.length > 0) {
-      document.getElementById('welcome').classList.add('hidden');
-      document.getElementById('quick-replies').classList.remove('hidden');
-      const chatArea = document.getElementById('chat-area');
-      messages.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'msg ' + m.role;
-        if (m.role === 'assistant') {
-          div.innerHTML = '<div class="coach-label">Coach</div>' + escapeHtml(m.content);
-        } else {
-          div.textContent = m.content;
-        }
-        chatArea.appendChild(div);
-      });
-      chatArea.scrollTop = chatArea.scrollHeight;
-    }
-
-    // Update header every second
-    setInterval(updateHeader, 1000);
-  </script>
+// Update timer
+setInterval(()=>{ if(document.querySelector('.tab.active')===document.getElementById('tab-home')) renderHome(); updateHeader(); }, 5000);
+</script>
 </body>
 </html>
